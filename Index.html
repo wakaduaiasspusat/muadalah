@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; }
+    .container {
+      max-width: 480px;   /* seperti Google Form di smartphone */
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { text-align: center; margin-bottom: 5px; }
+    h2 { text-align: center; color: #555; margin-top: 0; }
+    .accordion {
+      background: #fff;
+      cursor: pointer;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      transition: 0.3s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold; /* pertanyaan bold */
+    }
+    .accordion:hover { background: #f0f0f0; }
+    .panel {
+      padding: 10px 15px;
+      display: none;
+      background: #fafafa;
+      border-left: 3px solid #007BFF;
+      margin-bottom: 10px;
+      border-radius: 0 0 8px 8px;
+      font-weight: normal;
+    }
+    .btn-daftar {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 15px 0;
+      background: #28a745;
+      color: white;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .form-box { display: none; }
+    .form-box input, .form-box textarea {
+      width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px;
+    }
+    .form-box button {
+      padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer;
+    }
+    .notif {
+      margin-top: 10px; text-align: center; font-style: italic; color: #555;
+    }
+    /* Spinner style */
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #007BFF;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      margin: 10px auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Muadalah PonPes Sidogiri</h1>
+    <h2>Sidogiri Kraton Pasuruan</h2>
+
+    <h3>Sering Ditanyakan</h3>
+    <div id="faq"></div>
+
+    <div class="btn-daftar" onclick="toggleForm()">📋 Daftar</div>
+    <div class="form-box" id="formBox">
+      <h3>Form Pendaftaran</h3>
+      <input type="text" id="nama" placeholder="Nama" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <textarea id="catatan" placeholder="Catatan..."></textarea>
+      <button onclick="kirimForm()">Kirim</button>
+      <div class="spinner" id="spinner"></div>
+      <div class="notif" id="notif"></div>
+    </div>
+  </div>
+
+  <script>
+    // Ambil FAQ dari server
+    google.script.run.withSuccessHandler(renderFaq).getFaqData();
+
+    function renderFaq(data) {
+      const faqDiv = document.getElementById("faq");
+      data.forEach(row => {
+        const [q, a] = row;
+        const acc = document.createElement("div");
+        acc.className = "accordion";
+        acc.innerHTML = `<span>${q}</span><i class="fas fa-chevron-down"></i>`;
+        const panel = document.createElement("div");
+        panel.className = "panel";
+        panel.innerHTML = a;
+
+        acc.onclick = function () {
+          const isOpen = panel.style.display === "block";
+          document.querySelectorAll(".panel").forEach(p => p.style.display = "none");
+          document.querySelectorAll(".accordion i").forEach(i => i.style.transform = "rotate(0deg)");
+          if (!isOpen) {
+            panel.style.display = "block";
+            acc.querySelector("i").style.transform = "rotate(180deg)";
+          }
+        };
+
+        faqDiv.appendChild(acc);
+        faqDiv.appendChild(panel);
+      });
+    }
+
+    // Toggle form daftar
+    function toggleForm() {
+      const formBox = document.getElementById("formBox");
+      formBox.style.display = formBox.style.display === "block" ? "none" : "block";
+    }
+
+    // Kirim form daftar
+    function kirimForm() {
+      const nama = document.getElementById("nama").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const catatan = document.getElementById("catatan").value.trim();
+      const notif = document.getElementById("notif");
+      const spinner = document.getElementById("spinner");
+
+      if (!nama || !email) {
+        notif.textContent = "Nama dan email wajib diisi!";
+        notif.style.color = "red";
+        return;
+      }
+
+      notif.textContent = "";
+      spinner.style.display = "block"; // tampilkan spinner
+
+      const data = { nama, email, catatan };
+      google.script.run.withSuccessHandler(msg => {
+        spinner.style.display = "none"; // sembunyikan spinner
+        notif.textContent = "Terimakasih, data berhasil disimpan..";
+        notif.style.color = "green";
+
+        // reset form setelah 1.5 detik
+        setTimeout(() => {
+          document.getElementById("nama").value = "";
+          document.getElementById("email").value = "";
+          document.getElementById("catatan").value = "";
+          notif.textContent = "";
+          document.getElementById("formBox").style.display = "none";
+        }, 1500);
+      }).simpanDaftar(data);
+    }
+  </script>
+</body>
+</html>
