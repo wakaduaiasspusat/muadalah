@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
+  <meta charset="UTF-8">
+  <title>Muadalah PonPes Sidogiri</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; background: #f9f9f9; }
     .container {
-      max-width: 480px;   /* seperti Google Form di smartphone */
+      max-width: 480px;
       margin: auto;
       background: #fff;
       padding: 20px;
@@ -26,7 +27,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-weight: bold; /* pertanyaan bold */
+      font-weight: bold;
     }
     .accordion:hover { background: #f0f0f0; }
     .panel {
@@ -60,7 +61,6 @@
     .notif {
       margin-top: 10px; text-align: center; font-style: italic; color: #555;
     }
-    /* Spinner style */
     .spinner {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #007BFF;
@@ -98,8 +98,12 @@
   </div>
 
   <script>
-    // Ambil FAQ dari server
-    google.script.run.withSuccessHandler(renderFaq).getFaqData();
+    // FAQ statis
+    const faqData = [
+      ["Apa itu Muadalah?", "Muadalah adalah jenjang pendidikan di pondok pesantren setara sekolah formal."],
+      ["Bagaimana cara mendaftar?", "Klik tombol Daftar, isi form, lalu klik Kirim."],
+      ["Apakah ada biaya?", "Biaya pendaftaran dan pendidikan sesuai ketentuan pondok."]
+    ];
 
     function renderFaq(data) {
       const faqDiv = document.getElementById("faq");
@@ -127,13 +131,15 @@
       });
     }
 
+    renderFaq(faqData);
+
     // Toggle form daftar
     function toggleForm() {
       const formBox = document.getElementById("formBox");
       formBox.style.display = formBox.style.display === "block" ? "none" : "block";
     }
 
-    // Kirim form daftar
+    // Kirim form daftar (dummy)
     function kirimForm() {
       const nama = document.getElementById("nama").value.trim();
       const email = document.getElementById("email").value.trim();
@@ -148,15 +154,14 @@
       }
 
       notif.textContent = "";
-      spinner.style.display = "block"; // tampilkan spinner
+      spinner.style.display = "block";
 
-      const data = { nama, email, catatan };
-      google.script.run.withSuccessHandler(msg => {
-        spinner.style.display = "none"; // sembunyikan spinner
+      // Simulasi delay
+      setTimeout(() => {
+        spinner.style.display = "none";
         notif.textContent = "Terimakasih, data berhasil disimpan..";
         notif.style.color = "green";
 
-        // reset form setelah 1.5 detik
         setTimeout(() => {
           document.getElementById("nama").value = "";
           document.getElementById("email").value = "";
@@ -164,7 +169,7 @@
           notif.textContent = "";
           document.getElementById("formBox").style.display = "none";
         }, 1500);
-      }).simpanDaftar(data);
+      }, 1000);
     }
   </script>
 </body>
